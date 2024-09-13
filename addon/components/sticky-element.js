@@ -107,7 +107,7 @@ export default Component.extend({
    * @private
    */
   isStickyTop: computed('enabled', 'parentTop', 'isStickyBottom', function() {
-    return this.get('enabled') && this.get('parentTop') === 'top' && !this.get('isStickyBottom');
+    return this.enabled && this.parentTop === 'top' && !this.isStickyBottom;
   }).readOnly(),
 
   /**
@@ -117,7 +117,7 @@ export default Component.extend({
    * @private
    */
   isStickyBottom: computed('enabled', 'parentBottom', 'stickToBottom', function() {
-    return this.get('enabled') && this.get('parentBottom') !== 'bottom' && this.get('stickToBottom');
+    return this.enabled && this.parentBottom !== 'bottom' && this.stickToBottom;
   }).readOnly(),
 
   /**
@@ -181,7 +181,7 @@ export default Component.extend({
    * @private
    */
   offsetBottom: computed('top', 'ownHeight', 'bottom', 'windowHeight', function() {
-    let { top, ownHeight, bottom, windowHeight } = this.getProperties('top', 'ownHeight', 'bottom', 'windowHeight');
+    let { top, ownHeight, bottom, windowHeight } = this;
     return (windowHeight - top - ownHeight - bottom);
   }),
 
@@ -193,8 +193,8 @@ export default Component.extend({
    * @private
    */
   style: computed('isSticky', 'ownHeight', function() {
-    let height = this.get('ownHeight');
-    if (height > 0 && this.get('isSticky')) {
+    let height = this.ownHeight;
+    if (height > 0 && this.isSticky) {
       return htmlSafe(`height: ${height}px;`);
     }
   }),
@@ -207,12 +207,12 @@ export default Component.extend({
    * @private
    */
   containerStyle: computed('isStickyTop', 'isStickyBottom', 'top', 'bottom', 'ownWidth', function() {
-    if (this.get('isStickyBottom')) {
-      let style = `position: absolute; bottom: ${this.get('bottom')}px; width: ${this.get('ownWidth')}px`;
+    if (this.isStickyBottom) {
+      let style = `position: absolute; bottom: ${this.bottom}px; width: ${this.ownWidth}px`;
       return htmlSafe(style);
     }
-    if (this.get('isStickyTop')) {
-      let style = `position: fixed; top: ${this.get('top')}px; width: ${this.get('ownWidth')}px`;
+    if (this.isStickyTop) {
+      let style = `position: fixed; top: ${this.top}px; width: ${this.ownWidth}px`;
       return htmlSafe(style);
     }
   }),
@@ -265,7 +265,7 @@ export default Component.extend({
    * @private
    */
   updateDimension() {
-    if(this.get('isDestroyed') || this.get('isDestroying')) {
+    if(this.isDestroyed || this.isDestroying) {
       return false;
     }
     setProperties(this, {
@@ -279,10 +279,10 @@ export default Component.extend({
     let { topTriggerElement, bottomTriggerElement } = this;
 
     if (topTriggerElement) {
-      this.set('parentTop', elementPosition(topTriggerElement, this.get('top'), 0));
+      this.set('parentTop', elementPosition(topTriggerElement, this.top, 0));
     }
     if (bottomTriggerElement) {
-      this.set('parentBottom', elementPosition(bottomTriggerElement, 0, this.get('offsetBottom')));
+      this.set('parentBottom', elementPosition(bottomTriggerElement, 0, this.offsetBottom));
     }
   },
 

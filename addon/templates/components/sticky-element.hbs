@@ -1,4 +1,4 @@
-{{sticky-element/trigger offset=top enter=(action "parentTopEntered") exit=(action "parentTopExited") registerElement=(action "registerTopTrigger")}}
+<StickyElement::Trigger @offset={{top}} @enter={{action "parentTopEntered"}} @exit={{action "parentTopExited"}} @registerElement={{action "registerTopTrigger"}} />
 
 {{! template-lint-disable no-inline-styles }}
 <div class="
@@ -19,5 +19,5 @@
 </div>
 
 {{#if stickToBottom}}
-  {{sticky-element/trigger type="bottom" offset=offsetBottom enter=(action "parentBottomEntered") exit=(action "parentBottomExited") registerElement=(action "registerBottomTrigger")}}
+  <StickyElement::Trigger @type="bottom" @offset={{offsetBottom}} @enter={{action "parentBottomEntered"}} @exit={{action "parentBottomExited"}} @registerElement={{action "registerBottomTrigger"}} />
 {{/if}}

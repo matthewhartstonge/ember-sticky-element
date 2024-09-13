@@ -28,7 +28,7 @@ export default Component.extend(InViewportMixin, {
    * @private
    */
   typeClass: computed('type', function() {
-    return `sticky-element__trigger--${this.get('type')}`;
+    return `sticky-element__trigger--${this.type}`;
   }),
 
   _lastTop: null,
@@ -49,8 +49,8 @@ export default Component.extend(InViewportMixin, {
    */
 
   isBeforeViewport() {
-    let offset = this.get('type') === 'top' ? this.get('offset') : 0;
-    return this.get('element').getBoundingClientRect().top - offset < 0;
+    let offset = this.type === 'top' ? this.offset : 0;
+    return this.element.getBoundingClientRect().top - offset < 0;
   },
 
   didEnterViewport() {
@@ -72,7 +72,7 @@ export default Component.extend(InViewportMixin, {
       left: 0,
       right: 0
     };
-    viewportTolerance[this.get('type')] = -this.get('offset');
+    viewportTolerance[this.type] = -this.offset;
     setProperties(this, {
       viewportSpy: true,
       viewportEnabled: true,
@@ -122,7 +122,7 @@ export default Component.extend(InViewportMixin, {
    * @private
    */
   _triggerDidAccessViewport(hasEnteredViewport = false) {
-    let viewportEntered = this.get('viewportEntered');
+    let viewportEntered = this.viewportEntered;
     let didEnter = !viewportEntered && hasEnteredViewport;
     let didLeave = viewportEntered && !hasEnteredViewport;
 
