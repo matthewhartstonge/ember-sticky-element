@@ -12,5 +12,7 @@ module.exports = {
     }
 
     target.import('vendor/ember-sticky-element.css');
+
+    return this._super.included.apply(this, arguments);
   }
 };
