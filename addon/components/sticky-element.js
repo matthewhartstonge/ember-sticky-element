@@ -1,14 +1,12 @@
-import Ember from 'ember';
-import { or, notEmpty } from '@ember/object/computed';
+import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
+import { action } from '@ember/object';
 import { htmlSafe } from '@ember/string';
-import Component from '@ember/component';
-import { computed, setProperties } from '@ember/object';
-import { later, cancel, debounce } from '@ember/runloop';
-import layout from '../templates/components/sticky-element';
+import { debounce } from '@ember/runloop';
 
-function elementPosition(element, offseTop, offsetBottom) {
+function elementPosition(element, offsetTop, offsetBottom) {
   let top = element.getBoundingClientRect().top;
-  if (top - offseTop < 0) {
+  if (top - offsetTop <= 0) {
     return 'top';
   }
   if (top + element.offsetHeight + offsetBottom <= window.innerHeight) {
@@ -17,10 +15,24 @@ function elementPosition(element, offseTop, offsetBottom) {
   return 'bottom';
 }
 
-export default Component.extend({
-  layout,
-  classNames: ['sticky-element-container'],
-  attributeBindings: ['style'],
+export default class StickyElementComponent extends Component {
+
+  /**
+   * The classes to set on the sticky-element-container. Prepends passed in
+   * classes to the containing element.
+   *
+   * @property class
+   * @type {string}
+   * @default 'sticky-element-container'
+   * @public
+   */
+  get class() {
+    const className = 'sticky-element-container';
+    if (this.args.class != null) {
+      return `${this.args.class} ${className}`;
+    }
+    return className;
+  }
 
   /**
    * The offset from the top of the viewport when to start sticking to the top
@@ -30,17 +42,24 @@ export default Component.extend({
    * @default 0
    * @public
    */
-  top: 0,
+  get top() {
+    return this.args.top || 0;
+  }
 
   /**
    * The offset from the parents bottom edge when to start sticking to the bottom of the parent
    * When `null` (default) sticking to the bottom is disabled. Use 0 or any other appropriate offset to enable it.
    *
    * @property bottom
-   * @type {boolean|null}
+   * @type {number|null}
    * @public
    */
-  bottom: null,
+  get bottom() {
+    if (this.args.bottom == null) {
+      return 0;
+    }
+    return this.args.bottom;
+  }
 
   /**
    * Set to false to disable sticky behavior
@@ -50,7 +69,12 @@ export default Component.extend({
    * @default true
    * @public
    */
-  enabled: true,
+  get enabled() {
+    if (this.args.enabled == null) {
+      return true;
+    }
+    return this.args.enabled;
+  }
 
   /**
    * The class name set on the element container.
@@ -60,45 +84,56 @@ export default Component.extend({
    * @default 'sticky-element'
    * @public
    */
-  containerClassName: 'sticky-element',
+  get containerClassName() {
+    return this.args.containerClassName || 'sticky-element';
+  }
 
   /**
-   * The class name set on the element container when it is sticked.
+   * The class name set on the element container when it is stuck.
    *
    * @property containerStickyClassName
    * @type {string|null}
    * @default 'sticky-element--sticky'
    * @public
    */
-  containerStickyClassName: 'sticky-element--sticky',
+  get containerStickyClassName() {
+    return this.args.containerStickyClassName || 'sticky-element--sticky';
+  }
 
   /**
-   * The class name set on the element container when it is sticked to top.
+   * The class name set on the element container when it is stuck to top.
    *
    * @property containerStickyTopClassName
    * @type {string|null}
    * @default 'sticky-element--sticky-top'
    * @public
    */
-  containerStickyTopClassName: 'sticky-element--sticky-top',
+  get containerStickyTopClassName() {
+    return this.args.containerStickyTopClassName || 'sticky-element--sticky-top';
+  }
 
   /**
-   * The class name set on the element container when it is sticked to bottom.
+   * The class name set on the element container when it is stuck to bottom.
    *
    * @property containerStickyBottomClassName
    * @type {string|null}
    * @default 'sticky-element--sticky-bottom'
    * @public
    */
-  containerStickyBottomClassName: 'sticky-element--sticky-bottom',
+  get containerStickyBottomClassName() {
+    return this.args.containerStickyBottomClassName || 'sticky-element--sticky-bottom';
+  }
 
+  // Computed properties
   /**
    * @property isSticky
    * @type {boolean}
    * @readOnly
    * @private
    */
-  isSticky: or('isStickyTop', 'isStickyBottom').readOnly(),
+  get isSticky() {
+    return this.isStickyTop || this.isStickyBottom;
+  }
 
   /**
    * @property isStickyTop
@@ -106,9 +141,9 @@ export default Component.extend({
    * @readOnly
    * @private
    */
-  isStickyTop: computed('enabled', 'parentTop', 'isStickyBottom', function() {
+  get isStickyTop() {
     return this.enabled && this.parentTop === 'top' && !this.isStickyBottom;
-  }).readOnly(),
+  }
 
   /**
    * @property isStickyBottom
@@ -116,37 +151,77 @@ export default Component.extend({
    * @readOnly
    * @private
    */
-  isStickyBottom: computed('enabled', 'parentBottom', 'stickToBottom', function() {
+  get isStickyBottom() {
     return this.enabled && this.parentBottom !== 'bottom' && this.stickToBottom;
-  }).readOnly(),
+  }
 
+  // Tracked properties
   /**
    * @property parentTop
    * @type {string}
    * @private
    */
-  parentTop: 'bottom',
+  @tracked parentTop = 'bottom';
 
   /**
    * @property parentBottom
    * @type {string}
    * @private
    */
-  parentBottom: 'bottom',
+  @tracked parentBottom = 'bottom';
 
   /**
    * @property ownHeight
    * @type {number}
    * @private
    */
-  ownHeight: 0,
+  @tracked ownHeight = 0;
 
   /**
    * @property ownWidth
    * @type {number}
    * @private
    */
-  ownWidth: 0,
+  @tracked ownWidth = 0;
+
+  /**
+   * @property windowHeight
+   * @type {number}
+   * @private
+   */
+  @tracked windowHeight = 0;
+
+  /**
+   * used to track the height and width of the sticky container element.
+   *
+   * @property elementRef
+   * @type {HTMLElement}
+   * @private
+   */
+  @tracked elementRef = null;
+
+  // Private properties
+  /**
+   * @property topTriggerElement
+   * @type {HTMLElement}
+   * @private
+   */
+  @tracked topTriggerElement = null;
+
+  /**
+   * @property bottomTriggerElement
+   * @type {HTMLElement}
+   * @private
+   */
+  @tracked bottomTriggerElement = null;
+
+  /**
+   * _eventListener is used to recompute bounding box dimensions and element position on scroll or window resize.
+   *
+   * @property _eventListener
+   * @private
+   */
+  @tracked _eventListener = null;
 
   /**
    * @property stickToBottom
@@ -154,177 +229,147 @@ export default Component.extend({
    * @readOnly
    * @private
    */
-  stickToBottom: notEmpty('bottom').readOnly(),
+  get stickToBottom() {
+    return this.args.bottom != null;
+  }
 
-  /**
-   * @property windowHeight
-   * @type {number}
-   * @private
-   */
-  windowHeight: 0,
-
-  /**
-   * @property topTriggerElement
-   * @private
-   */
-  topTriggerElement: null,
-
-  /**
-   * @property bottomTriggerElement
-   * @private
-   */
-  bottomTriggerElement: null,
-
-  /**
-   * @property offsetBottom
-   * @type {number}
-   * @private
-   */
-  offsetBottom: computed('top', 'ownHeight', 'bottom', 'windowHeight', function() {
-    let { top, ownHeight, bottom, windowHeight } = this;
-    return (windowHeight - top - ownHeight - bottom);
-  }),
+  get offsetBottom() {
+    return (this.windowHeight - this.top - this.ownHeight - this.bottom);
+  }
 
   /**
    * Dynamic style for the components element
    *
    * @property style
-   * @type {string}
+   * @type {string|null}
    * @private
    */
-  style: computed('isSticky', 'ownHeight', function() {
-    let height = this.ownHeight;
-    if (height > 0 && this.isSticky) {
-      return htmlSafe(`height: ${height}px;`);
+  get style() {
+    if (this.ownHeight > 0 && this.isSticky) {
+      return htmlSafe(`height: ${this.ownHeight}px;`);
     }
-  }),
+    return null;
+  }
 
   /**
    * Dynamic style for the sticky container (`position: fixed`)
    *
    * @property containerStyle
-   * @type {string}
+   * @type {string|null}
    * @private
    */
-  containerStyle: computed('isStickyTop', 'isStickyBottom', 'top', 'bottom', 'ownWidth', function() {
+  get containerStyle() {
     if (this.isStickyBottom) {
-      let style = `position: absolute; bottom: ${this.bottom}px; width: ${this.ownWidth}px`;
-      return htmlSafe(style);
+      return htmlSafe(`position: absolute; bottom: ${this.bottom}px; width: ${this.ownWidth}px`);
     }
     if (this.isStickyTop) {
-      let style = `position: fixed; top: ${this.top}px; width: ${this.ownWidth}px`;
-      return htmlSafe(style);
+      return htmlSafe(`position: fixed; top: ${this.top}px; width: ${this.ownWidth}px`);
     }
-  }),
+    return null;
+  }
 
   /**
-   * Add listener to update sticky element width on resize event
+   * Adds listeners to update sticky element width on resize events.
+   *
    * @method initResizeEventListener
    * @private
    */
   initResizeEventListener() {
-    this._resizeListener = () => this.debouncedUpdateDimension();
-    window.addEventListener('resize', this._resizeListener, false);
-  },
+    this._eventListener = () => debounce(this, this.debounceEventListener, 16);
+    window.addEventListener('resize', this._eventListener, false);
+    window.addEventListener('scroll', this._eventListener, false);
+  }
+
+  debounceEventListener() {
+    this.updateDimension();
+    this.updatePosition();
+  }
 
   /**
-   * @method removeResizeEventListener
+   * @method removeEventListeners
    * @private
    */
   removeResizeEventListener() {
-    window.removeEventListener('resize', this._resizeListener, false);
-  },
-
-  _pollTask() {
-    this.updatePosition();
-    this.initPollTask();
-  },
-
-  initPollTask() {
-    if (!Ember.testing) {
-      this._pollTimer = later(this, this._pollTask, 500);
-    }
-  },
-
-  removePollTask() {
-    if (this._pollTimer) {
-      cancel(this._pollTimer);
-    }
-  },
-
-  /**
-   * @method debouncedUpdateDimension
-   * @private
-   */
-  debouncedUpdateDimension() {
-    debounce(this, this.updateDimension, 30);
-  },
+    window.removeEventListener('resize', this._eventListener, false);
+    window.removeEventListener('scroll', this._eventListener, false);
+  }
 
   /**
    * @method updateDimension
    * @private
    */
   updateDimension() {
-    if(this.isDestroyed || this.isDestroying) {
+    if (this.isDestroyed || this.isDestroying) {
       return false;
     }
-    setProperties(this, {
-      windowHeight: window.innerHeight,
-      ownHeight: this.element.offsetHeight,
-      ownWidth: this.element.offsetWidth
-    });
-  },
+    this.windowHeight = window.innerHeight;
+    this.ownHeight = this.elementRef ? this.elementRef.offsetHeight : 0;
+    this.ownWidth = this.elementRef ? this.elementRef.offsetWidth : 0;
+  }
 
+  /**
+   * @method updatePosition
+   * @private
+   */
   updatePosition() {
-    let { topTriggerElement, bottomTriggerElement } = this;
-
-    if (topTriggerElement) {
-      this.set('parentTop', elementPosition(topTriggerElement, this.top, 0));
+    if (this.topTriggerElement) {
+      this.parentTop = elementPosition(this.topTriggerElement, this.top, 0);
     }
-    if (bottomTriggerElement) {
-      this.set('parentBottom', elementPosition(bottomTriggerElement, 0, this.offsetBottom));
-    }
-  },
-
-  didInsertElement() {
-    this._super(...arguments);
-    this.updateDimension();
-    // scheduleOnce('afterRender', this, this.updateDimension);
-    this.initResizeEventListener();
-    this.initPollTask();
-  },
-
-  willDestroyElement() {
-    this.removeResizeEventListener();
-    this.removePollTask();
-  },
-
-  actions: {
-    parentTopEntered() {
-      // console.log('parentTopEntered');
-      this.set('parentTop', 'in');
-    },
-    parentTopExited() {
-      // make sure we captured the right dimensions before getting sticky!
-      // console.log('parentTopExited');
-      this.updateDimension();
-      this.updatePosition();
-    },
-    parentBottomEntered() {
-      // console.log('parentBottomEntered');
-      this.set('parentBottom', 'in');
-    },
-    parentBottomExited() {
-      // console.log('parentBottomExited');
-      this.updatePosition();
-    },
-    registerTopTrigger(element) {
-      this.topTriggerElement = element;
-      this.updatePosition();
-    },
-    registerBottomTrigger(element) {
-      this.bottomTriggerElement = element;
-      this.updatePosition();
+    if (this.bottomTriggerElement) {
+      this.parentBottom = elementPosition(this.bottomTriggerElement, 0, this.offsetBottom);
     }
   }
-});
+
+  willDestroy() {
+    super.willDestroy();
+    this.removeResizeEventListener();
+  }
+
+  @action
+  setupElement(element) {
+    this.elementRef = element;
+    this.updateDimension();
+    this.updatePosition();
+    this.initResizeEventListener();
+  }
+
+  @action
+  parentTopEntered() {
+    // console.log('parentTopEntered');
+    this.parentTop = 'in';
+  }
+
+  @action
+  parentTopExited() {
+    // make sure we captured the right dimensions before getting sticky!
+    // console.log('parentTopExited');
+    this.updateDimension();
+    this.updatePosition();
+  }
+
+  @action
+  parentBottomEntered() {
+    // console.log('parentBottomEntered');
+    this.parentBottom = 'in';
+    this.updatePosition();
+  }
+
+  @action
+  parentBottomExited() {
+    // console.log('parentBottomExited');
+    this.updateDimension();
+    this.updatePosition();
+  }
+
+  @action
+  registerTopTrigger(element) {
+    this.topTriggerElement = element;
+    this.updatePosition();
+  }
+
+  @action
+  registerBottomTrigger(element) {
+    this.bottomTriggerElement = element;
+    this.updatePosition();
+  }
+}

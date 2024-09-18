@@ -1,0 +1,39 @@
+{{! template-lint-disable no-inline-styles }}
+<div {{did-insert this.setupElement}}
+  class={{this.class}}
+  style={{this.style}}>
+
+  <StickyElement::Trigger
+    @offset={{this.top}}
+    @enter={{fn this.parentTopEntered}}
+    @exit={{fn this.parentTopExited}}
+    @registerElement={{fn this.registerTopTrigger}}
+  />
+
+  {{! template-lint-disable no-inline-styles }}
+  <div class="{{this.containerClassName}}
+      {{if this.isSticky this.containerStickyClassName}}
+      {{if this.isStickyTop this.containerStickyTopClassName}}
+      {{if this.isStickyBottom this.containerStickyBottomClassName}}"
+    style={{this.containerStyle}}>
+
+    {{yield
+      (hash
+        isSticky=this.isSticky
+        isStickyTop=this.isStickyTop
+        isStickyBottom=this.isStickyBottom
+      )
+    }}
+
+  </div>
+
+  {{#if this.stickToBottom}}
+    <StickyElement::Trigger
+      @type="bottom"
+      @offset={{this.offsetBottom}}
+      @enter={{fn this.parentBottomEntered}}
+      @exit={{fn this.parentBottomExited}}
+      @registerElement={{fn this.registerBottomTrigger}}
+    />
+  {{/if}}
+</div>
