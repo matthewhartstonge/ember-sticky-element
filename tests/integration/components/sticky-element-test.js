@@ -1,8 +1,7 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render, settled } from '@ember/test-helpers';
-import hbs from 'htmlbars-inline-precompile';
-import { registerWaiter } from 'ember-raf-test-waiter';
+import { hbs } from 'ember-cli-htmlbars';
 import _scrollTo from '../../helpers/scroll-to';
 import { resolve } from 'rsvp';
 
@@ -55,10 +54,6 @@ testProps.size.forEach(size => {
 module('Integration | Component | sticky element', function(hooks) {
   setupRenderingTest(hooks);
 
-  hooks.before(function() {
-    registerWaiter();
-  });
-
   function scrollTo(pos, duration = 50) {
     return pos.split(':').reduce((promise, pos) => promise.then(() => singleScrollTo(pos, duration)), resolve());
   }
@@ -106,9 +101,9 @@ module('Integration | Component | sticky element', function(hooks) {
   function output(sticky) {
     switch (sticky) {
       case 'top':
-        return 'Stick to top';
+        return 'Stuck to top';
       case 'bottom':
-        return 'Stick to bottom';
+        return 'Stuck to bottom';
       default:
         return 'Not sticky';
     }
@@ -120,12 +115,12 @@ module('Integration | Component | sticky element', function(hooks) {
       this.set('bottom', testCase.stickToBottom ? 0 : null);
       await render(hbs`
           <div class="row">
-            <div class="col {{size}} {{if offView "off"}}">
-              {{#sticky-element class="sticky" bottom=bottom as |sticky|}}
+            <div class="col {{this.size}} {{if this.offView "off"}}">
+              <StickyElement @class="sticky" @bottom={{this.bottom}} as |sticky|>
                 <p id="debug">
                   {{sticky-debug sticky}}
                 </p>
-              {{/sticky-element}}
+              </StickyElement>
             </div>
           </div>
         `);
@@ -143,13 +138,13 @@ module('Integration | Component | sticky element', function(hooks) {
       this.set('visible', false);
       await render(hbs`
           <div class="row">
-            <div class="col {{size}} {{if offView "off"}}">
-              {{#if visible}}
-                {{#sticky-element class="sticky" bottom=bottom as |sticky|}}
+            <div class="col {{this.size}} {{if this.offView "off"}}">
+              {{#if this.visible}}
+                <StickyElement @class="sticky" @bottom={{this.bottom}} as |sticky|>
                   <p id="debug">
                     {{sticky-debug sticky}}
                   </p>
-                {{/sticky-element}}
+                </StickyElement>
               {{/if}}
             </div>
           </div>
@@ -174,12 +169,12 @@ module('Integration | Component | sticky element', function(hooks) {
     });
     await render(hbs`
       <div class="row">
-        <div class="col {{size}} {{if offView "off"}}">
-          {{#sticky-element class="sticky" enabled=false as |sticky|}}
+        <div class="col {{this.size}} {{if this.offView "off"}}">
+          <StickyElement @class="sticky" @enabled={{false}}  as |sticky|>
             <p id="debug">
               {{sticky-debug sticky}}
             </p>
-          {{/sticky-element}}
+          </StickyElement>
         </div>
       </div>
     `);
@@ -203,12 +198,12 @@ module('Integration | Component | sticky element', function(hooks) {
     this.set('containerWidth', 'width:500px');
     await render(hbs`
       <div class="row">
-        <div class="col {{size}} {{if offView "off"}}" style={{{containerWidth}}}>
-          {{#sticky-element class="sticky" bottom=bottom as |sticky|}}
+        <div class="col {{this.size}} {{if this.offView "off"}}" style={{{this.containerWidth}}}>
+          <StickyElement @class="sticky" @bottom="bottom" as |sticky|>
             <p id="debug">
               {{sticky-debug sticky}}
             </p>
-          {{/sticky-element}}
+          </StickyElement>
         </div>
       </div>
     `);
