@@ -1,11 +1,10 @@
-import Component from '@ember/component';
-import { observer, computed, setProperties } from '@ember/object';
-import { scheduleOnce } from '@ember/runloop';
-import InViewportMixin from 'ember-in-viewport';
+import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
+import { inject as service } from '@ember/service';
+import { action } from '@ember/object';
 
-export default Component.extend(InViewportMixin, {
-  classNameBindings: ['typeClass'],
-  classNames: ['sticky-element__trigger'],
+export default class TriggerComponent extends Component {
+  @service inViewport;
 
   /**
    * @property type
@@ -13,25 +12,47 @@ export default Component.extend(InViewportMixin, {
    * @default 'top'
    * @public
    */
-  type: 'top',
+  get type() {
+    return this.args.type || 'top';
+  }
 
   /**
    * @property offset
    * @type {number}
    * @public
    */
-  offset: 0,
+  get offset() {
+    return this.args.offset || 0;
+  }
 
   /**
    * @property typeClass
    * @type string
    * @private
    */
-  typeClass: computed('type', function() {
+  get typeClass() {
     return `sticky-element__trigger--${this.type}`;
-  }),
+  }
 
-  _lastTop: null,
+  /**
+   * used to track the sentinel.
+   *
+   * @property elementRef
+   * @type {Element}
+   * @private
+   */
+  @tracked elementRef;
+
+  get viewportConfig() {
+    return {
+      viewportTolerance: {
+        top: this.type === 'top' ? -this.offset : 0,
+        bottom: this.type === 'bottom' ? -this.offset : 0,
+        left: 0,
+        right: 0
+      },
+    };
+  }
 
   /**
    * Action when trigger enters viewport
@@ -48,95 +69,42 @@ export default Component.extend(InViewportMixin, {
    * @public
    */
 
-  isBeforeViewport() {
-    let offset = this.type === 'top' ? this.offset : 0;
-    return this.element.getBoundingClientRect().top - offset < 0;
-  },
-
   didEnterViewport() {
-    this.enter();
-  },
-
-  didExitViewport() {
-    this.exit();
-  },
-
-  /**
-   * @method updateViewportOptions
-   * @private
-   */
-  updateViewportOptions() {
-    let viewportTolerance = {
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0
-    };
-    viewportTolerance[this.type] = -this.offset;
-    setProperties(this, {
-      viewportSpy: true,
-      viewportEnabled: true,
-      viewportTolerance
-    });
-
-    this.updateIntersectionObserver();
-  },
-
-  /**
-   * Updates intersectionObserver after options have changed
-   *
-   * @method updateIntersectionObserver
-   * @private
-   */
-  updateIntersectionObserver() {
-    if (this.intersectionObserver) {
-      this.intersectionObserver.unobserve(this.element);
-      this._setViewportEntered();
-    }
-  },
-
-  init() {
-    this._super(...arguments);
-    this.updateViewportOptions();
-  },
-
-  didInsertElement() {
-    this._super(...arguments);
-    this.registerElement(this.element);
-  },
-
-  // eslint-disable-next-line ember/no-observers
-  _onOffsetChange: observer('offset', function() {
-    scheduleOnce('afterRender', this, this.updateViewportOptions);
-  }),
-
-  _bindScrollDirectionListener() {},
-  _unbindScrollDirectionListener() {},
-
-  /**
-   * Override ember-in-viewport method to trigger event also when trigger has moved from below viewport to on top
-   * of viewport without triggering didEnterViewport because of too fast scroll movement
-   *
-   * @method _triggerDidAccessViewport
-   * @param hasEnteredViewport
-   * @private
-   */
-  _triggerDidAccessViewport(hasEnteredViewport = false) {
-    let viewportEntered = this.viewportEntered;
-    let didEnter = !viewportEntered && hasEnteredViewport;
-    let didLeave = viewportEntered && !hasEnteredViewport;
-
-    let lastTop = this._lastTop;
-    this._lastTop = this.isBeforeViewport();
-
-    if (!didEnter && !didLeave) {
-      if (lastTop !== this._lastTop) {
-        this._super(true);
-        this._super(false);
-      }
-    } else {
-      this._super(hasEnteredViewport);
-    }
+    this.args.enter();
   }
 
-});
+  didExitViewport() {
+    this.args.exit();
+  }
+
+  /**
+   * Action when trigger exits viewport
+   *
+   * @event did-insert
+   * @param {Element} element The element to use as a sentinel tracker
+   * @public
+   */
+  @action
+  setupInViewport(element) {
+    this.elementRef = element;
+
+    this.inViewport.viewportEnabled = true;
+    this.inViewport.viewportSpy= true;
+    this.inViewport.viewportRefreshRate = 16;
+
+    this.args.registerElement(element);
+    this.inViewport.watchElement(
+        element,
+        this.viewportConfig,
+        this.didEnterViewport.bind(this),
+        this.didExitViewport.bind(this)
+    );
+  }
+
+  willDestroy() {
+    super.willDestroy(...arguments);
+    if (this.elementRef) {
+      this.inViewport.stopWatching(this.elementRef);
+    }
+  }
+}
