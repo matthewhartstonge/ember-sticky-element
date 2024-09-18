@@ -77,7 +77,7 @@ Add the `top` property to specify an offset in pixels from the top of the viewpo
 
 ##### Bottom offset
 
-By default the sticky element will not care about its parent enclosing element and just remain sticky to the top when 
+By default, the sticky element will not care about its parent enclosing element and just remain sticky to the top when 
 scrolling the page all the way down. To make it also stick to the bottom of its parent (so it does not leave its parent's
 boundaries), just add the `bottom` property, with a value of 0 or some other offset:
 
@@ -92,7 +92,7 @@ bottom is done by applying `position: absolute` to the sticky element!
 
 ##### Disabling
 
-You can set the `enabled` property to false to disable the sticky behavior:
+Setting `enabled` to false will disable the sticky behavior:
 
 ```hbs
 {{#sticky-element enabled=someBooleanProperty}}
@@ -104,11 +104,11 @@ You can set the `enabled` property to false to disable the sticky behavior:
 
 ##### CSS
 
-The sticky element has a `containerClassName` property you can use for styling (by default `.sticky-element`). Furthermore additionals classes can be set:
+The sticky element has a `containerClassName` property you can use for styling (by default `.sticky-element`). Furthermore, additional classes can be set:
 when being sticky:
-* `containerStickyClassName` (by default `.sticky-element--sticky`): when sticked either to the top or the bottom.
-* `containerStickyTopClassName` (by default `.sticky-element--sticky-top`): when sticked to the top.
-* `containerStickyBottomClassName` (by default `.sticky-element--sticky-bottom`): when sticked to the bottom.
+* `containerStickyClassName` (by default `.sticky-element--sticky`): when stuck either to the top or the bottom.
+* `containerStickyTopClassName` (by default `.sticky-element--sticky-top`): when stuck to the top.
+* `containerStickyBottomClassName` (by default `.sticky-element--sticky-bottom`): when stuck to the bottom.
 
 ##### Content
 
