@@ -1,16 +1,16 @@
-import { helper } from '@ember/component/helper';
+import Helper from '@ember/component/helper';
 
-export function stickyDebug(params) {
-  let [stickyness] = params;
+export default class StickyDebug extends Helper {
+  compute(positional) {
+    let [stickiness] = positional;
 
-  switch (true) {
-    case stickyness.isStickyTop:
-      return 'Stick to top';
-    case stickyness.isStickyBottom:
-      return 'Stick to bottom';
-    default:
-      return 'Not sticky';
+    switch (true) {
+      case stickiness.isStickyTop:
+        return 'Stuck to top';
+      case stickiness.isStickyBottom:
+        return 'Stuck to bottom';
+      default:
+        return 'Not sticky';
+    }
   }
 }
-
-export default helper(stickyDebug);
