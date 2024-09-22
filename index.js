@@ -3,8 +3,8 @@
 module.exports = {
   name: require('./package').name,
 
-  included: function(app, parentAddon) {
-    var target = (parentAddon || app);
+  included: function (app, parentAddon) {
+    var target = parentAddon || app;
 
     // necessary for nested usage
     if (target.app) {
@@ -14,5 +14,5 @@ module.exports = {
     target.import('vendor/ember-sticky-element.css');
 
     return this._super.included.apply(this, arguments);
-  }
+  },
 };

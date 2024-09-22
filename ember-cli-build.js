@@ -2,12 +2,12 @@
 
 const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
-module.exports = function(defaults) {
+module.exports = function (defaults) {
   let emberVersion = require('ember-source/package.json').version;
   let supportsNoJQuery = emberVersion.match(/^[\^~]?3.\d+.\d+.*$/);
 
   let app = new EmberAddon(defaults, {
-    vendorFiles: supportsNoJQuery ?  { 'jquery.js': null } : undefined
+    vendorFiles: supportsNoJQuery ? { 'jquery.js': null } : undefined,
   });
 
   /*
