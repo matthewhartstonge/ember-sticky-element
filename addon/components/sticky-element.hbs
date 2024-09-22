@@ -1,7 +1,5 @@
 {{! template-lint-disable no-inline-styles }}
-<div {{did-insert this.setupElement}}
-  class={{this.class}}
-  style={{this.style}}>
+<div {{did-insert this.setupElement}} class={{this.class}} style={{this.style}}>
 
   <StickyElement::Trigger
     @offset={{this.top}}
@@ -11,11 +9,13 @@
   />
 
   {{! template-lint-disable no-inline-styles }}
-  <div class="{{this.containerClassName}}
+  <div
+    class='{{this.containerClassName}}
       {{if this.isSticky this.containerStickyClassName}}
       {{if this.isStickyTop this.containerStickyTopClassName}}
-      {{if this.isStickyBottom this.containerStickyBottomClassName}}"
-    style={{this.containerStyle}}>
+      {{if this.isStickyBottom this.containerStickyBottomClassName}}'
+    style={{this.containerStyle}}
+  >
 
     {{yield
       (hash
@@ -29,7 +29,7 @@
 
   {{#if this.stickToBottom}}
     <StickyElement::Trigger
-      @type="bottom"
+      @type='bottom'
       @offset={{this.offsetBottom}}
       @enter={{fn this.parentBottomEntered}}
       @exit={{fn this.parentBottomExited}}

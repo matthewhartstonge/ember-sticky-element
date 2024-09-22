@@ -49,7 +49,7 @@ export default class TriggerComponent extends Component {
         top: this.type === 'top' ? -this.offset : 0,
         bottom: this.type === 'bottom' ? -this.offset : 0,
         left: 0,
-        right: 0
+        right: 0,
       },
     };
   }
@@ -89,15 +89,15 @@ export default class TriggerComponent extends Component {
     this.elementRef = element;
 
     this.inViewport.viewportEnabled = true;
-    this.inViewport.viewportSpy= true;
+    this.inViewport.viewportSpy = true;
     this.inViewport.viewportRefreshRate = 16;
 
     this.args.registerElement(element);
     this.inViewport.watchElement(
-        element,
-        this.viewportConfig,
-        this.didEnterViewport.bind(this),
-        this.didExitViewport.bind(this)
+      element,
+      this.viewportConfig,
+      this.didEnterViewport.bind(this),
+      this.didExitViewport.bind(this)
     );
   }
 

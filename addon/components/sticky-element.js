@@ -16,7 +16,6 @@ function elementPosition(element, offsetTop, offsetBottom) {
 }
 
 export default class StickyElementComponent extends Component {
-
   /**
    * The classes to set on the sticky-element-container. Prepends passed in
    * classes to the containing element.
@@ -109,7 +108,9 @@ export default class StickyElementComponent extends Component {
    * @public
    */
   get containerStickyTopClassName() {
-    return this.args.containerStickyTopClassName || 'sticky-element--sticky-top';
+    return (
+      this.args.containerStickyTopClassName || 'sticky-element--sticky-top'
+    );
   }
 
   /**
@@ -121,7 +122,10 @@ export default class StickyElementComponent extends Component {
    * @public
    */
   get containerStickyBottomClassName() {
-    return this.args.containerStickyBottomClassName || 'sticky-element--sticky-bottom';
+    return (
+      this.args.containerStickyBottomClassName ||
+      'sticky-element--sticky-bottom'
+    );
   }
 
   // Computed properties
@@ -234,7 +238,7 @@ export default class StickyElementComponent extends Component {
   }
 
   get offsetBottom() {
-    return (this.windowHeight - this.top - this.ownHeight - this.bottom);
+    return this.windowHeight - this.top - this.ownHeight - this.bottom;
   }
 
   /**
@@ -260,10 +264,14 @@ export default class StickyElementComponent extends Component {
    */
   get containerStyle() {
     if (this.isStickyBottom) {
-      return htmlSafe(`position: absolute; bottom: ${this.bottom}px; width: ${this.ownWidth}px`);
+      return htmlSafe(
+        `position: absolute; bottom: ${this.bottom}px; width: ${this.ownWidth}px`
+      );
     }
     if (this.isStickyTop) {
-      return htmlSafe(`position: fixed; top: ${this.top}px; width: ${this.ownWidth}px`);
+      return htmlSafe(
+        `position: fixed; top: ${this.top}px; width: ${this.ownWidth}px`
+      );
     }
     return null;
   }
@@ -316,7 +324,11 @@ export default class StickyElementComponent extends Component {
       this.parentTop = elementPosition(this.topTriggerElement, this.top, 0);
     }
     if (this.bottomTriggerElement) {
-      this.parentBottom = elementPosition(this.bottomTriggerElement, 0, this.offsetBottom);
+      this.parentBottom = elementPosition(
+        this.bottomTriggerElement,
+        0,
+        this.offsetBottom
+      );
     }
   }
 
