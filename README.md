@@ -1,5 +1,4 @@
-ember-sticky-element
-==============================================================================
+# ember-sticky-element
 
 [![Build Status](https://travis-ci.org/kaliber5/ember-sticky-element.svg?branch=master)](https://travis-ci.org/kaliber5/ember-sticky-element)
 [![Ember Observer Score](https://emberobserver.com/badges/ember-sticky-element.svg)](https://emberobserver.com/addons/ember-sticky-element)
@@ -28,24 +27,21 @@ It leverages [ember-in-viewport](https://github.com/DockYard/ember-in-viewport) 
 viewport detection techniques.
 
 
-Compatibility
-------------------------------------------------------------------------------
+## Compatibility
 
 * Ember.js v3.24 or above
 * Ember CLI v3.24 or above
 * Node.js v12 or above
 
 
-Installation
-------------------------------------------------------------------------------
+## Installation
 
 ```
 ember install ember-sticky-element
 ```
 
 
-Usage
-------------------------------------------------------------------------------
+## Usage
 
 Just wrap your content into the `sticky-element`:
 
@@ -127,13 +123,11 @@ You can use these to change the content of the sticky element based on its state
 ```
 
 
-Contributing
-------------------------------------------------------------------------------
+## Contributing
 
 See the [Contributing](CONTRIBUTING.md) guide for details.
 
 
-License
-------------------------------------------------------------------------------
+## License
 
 This project is licensed under the [MIT License](LICENSE.md).

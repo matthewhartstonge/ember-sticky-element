@@ -249,13 +249,13 @@ module('Integration | Component | sticky element', function (hooks) {
     await scrollTo('down');
     assert.dom('#debug').hasText(debug, debug);
     stickyElementWidth = document.querySelector('.sticky-element').clientWidth;
-    assert.equal(stickyElementWidth, 500);
+    assert.strictEqual(stickyElementWidth, 500);
     this.set('containerWidth', 'width:300px');
     await settled();
     window.dispatchEvent(new Event('resize'));
     await settled();
     stickyElementWidth = document.querySelector('.sticky-element').clientWidth;
-    assert.equal(stickyElementWidth, 300);
+    assert.strictEqual(stickyElementWidth, 300);
     assert.dom('#debug').hasText(debug, debug);
   });
 });
