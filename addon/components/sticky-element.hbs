@@ -3,9 +3,9 @@
 
   <StickyElement::Trigger
     @offset={{this.top}}
-    @enter={{fn this.parentTopEntered}}
-    @exit={{fn this.parentTopExited}}
-    @registerElement={{fn this.registerTopTrigger}}
+    @enter={{this.parentTopEntered}}
+    @exit={{this.parentTopExited}}
+    @registerElement={{this.registerTopTrigger}}
   />
 
   {{! template-lint-disable no-inline-styles }}
@@ -31,9 +31,9 @@
     <StickyElement::Trigger
       @type='bottom'
       @offset={{this.offsetBottom}}
-      @enter={{fn this.parentBottomEntered}}
-      @exit={{fn this.parentBottomExited}}
-      @registerElement={{fn this.registerBottomTrigger}}
+      @enter={{this.parentBottomEntered}}
+      @exit={{this.parentBottomExited}}
+      @registerElement={{this.registerBottomTrigger}}
     />
   {{/if}}
 </div>
