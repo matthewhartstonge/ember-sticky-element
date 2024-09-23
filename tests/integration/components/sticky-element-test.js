@@ -4,6 +4,7 @@ import { render, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import _scrollTo from '../../helpers/scroll-to';
 import { resolve } from 'rsvp';
+import { htmlSafe } from '@ember/template';
 
 const testProps = {
   size: ['xsmall', 'small', 'large'],
@@ -233,10 +234,10 @@ module('Integration | Component | sticky element', function (hooks) {
       stickToBottom: false,
       sticky: 'top',
     });
-    this.set('containerWidth', 'width:500px');
+    this.set('containerWidth', htmlSafe('width:500px'));
     await render(hbs`
       <div class="row">
-        <div class="col {{this.size}} {{if this.offView "off"}}" style={{{this.containerWidth}}}>
+        <div class="col {{this.size}} {{if this.offView "off"}}" style={{this.containerWidth}}>
           <StickyElement @class="sticky" @bottom="bottom" as |sticky|>
             <p id="debug">
               {{sticky-debug sticky}}
